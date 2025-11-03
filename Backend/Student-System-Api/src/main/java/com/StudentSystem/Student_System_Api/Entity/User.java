@@ -31,7 +31,7 @@ public class User {
     private String studentId;
     private String employeeId;
 
-    // NEW: Approval fields
+    //  Approval fields
     @Column(nullable = false)
     @Builder.Default
     private Boolean isApproved = false;

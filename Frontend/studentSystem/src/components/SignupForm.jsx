@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function SignupForm({ userType }) {
   const [formData, setFormData] = useState({
@@ -11,6 +12,10 @@ export default function SignupForm({ userType }) {
   });
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  // Separate visibility states
+  const [viewPassword, setViewPassword] = useState(false);
+  const [viewConfirmPassword, setViewConfirmPassword] = useState(false);
 
   const handleSignup = async () => {
     if (!formData.email || !formData.password || !formData.fullName || !formData.confirmPassword) {
@@ -30,16 +35,14 @@ export default function SignupForm({ userType }) {
     setMessage("");
 
     try {
-      // Prepare signup data based on user type
       const signupData = {
         fullName: formData.fullName,
         email: formData.email,
         password: formData.password,
         confirmPassword: formData.confirmPassword,
-        role: userType.toUpperCase(), // Convert to uppercase to match Role enum
+        role: userType.toUpperCase(),
       };
 
-      // Add ID field based on user type
       if (userType === "Student") {
         if (!formData.studentId) {
           setMessage("Student ID is required");
@@ -67,10 +70,7 @@ export default function SignupForm({ userType }) {
       const data = await response.json();
 
       if (response.status === 201) {
-        // Success - account created but pending approval
         setMessage("Account created! Wait for admin approval");
-        
-        // Clear form after successful signup
         setFormData({
           fullName: "",
           studentId: "",
@@ -80,7 +80,6 @@ export default function SignupForm({ userType }) {
           confirmPassword: "",
         });
       } else {
-        // Handle errors from backend
         setMessage(data.message || "Signup failed. Please try again.");
       }
     } catch (error) {
@@ -93,6 +92,7 @@ export default function SignupForm({ userType }) {
 
   return (
     <div className="space-y-4">
+      {/* Full Name */}
       <div>
         <label className="block text-sm font-semibold text-gray-700 mb-2">
           Full Name *
@@ -112,6 +112,7 @@ export default function SignupForm({ userType }) {
         />
       </div>
 
+      {/* Student or Teacher ID */}
       {userType === "Student" && (
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -154,6 +155,7 @@ export default function SignupForm({ userType }) {
         </div>
       )}
 
+      {/* Email */}
       <div>
         <label className="block text-sm font-semibold text-gray-700 mb-2">
           Email Address *
@@ -173,46 +175,65 @@ export default function SignupForm({ userType }) {
         />
       </div>
 
+      {/* Password */}
       <div>
         <label className="block text-sm font-semibold text-gray-700 mb-2">
           Password * (min. 6 characters)
         </label>
-        <input
-          type="password"
-          name="password"
-          value={formData.password}
-          onChange={(e) => {
-            setFormData((prev) => ({ ...prev, password: e.target.value }));
-            setMessage("");
-          }}
-          placeholder="••••••••"
-          className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
-          disabled={isLoading}
-          minLength={6}
-          required
-        />
+        <div className="relative">
+          <input
+            type={viewPassword ? "text" : "password"}
+            name="password"
+            value={formData.password}
+            onChange={(e) => {
+              setFormData((prev) => ({ ...prev, password: e.target.value }));
+              setMessage("");
+            }}
+            placeholder="••••••••"
+            className="w-full px-4 py-3 pr-12 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+            disabled={isLoading}
+            minLength={6}
+            required
+          />
+          <button
+            type="button"
+            onClick={() => setViewPassword(!viewPassword)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 cursor-pointer"
+            disabled={isLoading}
+          >
+            {viewPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+          </button>
+        </div>
       </div>
 
+      {/* Confirm Password */}
       <div>
         <label className="block text-sm font-semibold text-gray-700 mb-2">
           Confirm Password *
         </label>
-        <input
-          type="password"
-          name="confirmPassword"
-          value={formData.confirmPassword}
-          onChange={(e) => {
-            setFormData((prev) => ({
-              ...prev,
-              confirmPassword: e.target.value,
-            }));
-            setMessage("");
-          }}
-          placeholder="••••••••"
-          className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
-          disabled={isLoading}
-          required
-        />
+        <div className="relative">
+          <input
+            type={viewConfirmPassword ? "text" : "password"}
+            name="confirmPassword"
+            value={formData.confirmPassword}
+            onChange={(e) => {
+              setFormData((prev) => ({ ...prev, confirmPassword: e.target.value }));
+              setMessage("");
+            }}
+            placeholder="••••••••"
+            className="w-full px-4 py-3 pr-12 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+            disabled={isLoading}
+            required
+          />
+          <button
+            type="button"
+            onClick={() => setViewConfirmPassword(!viewConfirmPassword)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 cursor-pointer"
+            disabled={isLoading}
+          >
+            {viewConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+          </button>
+        </div>
       </div>
 
       {message && (
@@ -242,7 +263,6 @@ export default function SignupForm({ userType }) {
         )}
       </button>
 
-      {/* Info message about approval process */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
         <p className="text-sm text-blue-700 text-center">
           After signing up, your account will be pending admin approval before you can login.

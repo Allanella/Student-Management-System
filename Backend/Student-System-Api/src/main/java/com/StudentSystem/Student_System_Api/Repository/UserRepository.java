@@ -15,7 +15,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmployeeId(String employeeId);
     Boolean existsByEmail(String email);
     
-    // NEW: Methods for admin approval
+    //  Methods for admin approval
     List<User> findAllByIsApprovedFalse();
     List<User> findAllByApprovalStatus(ApprovalStatus status);
     List<User> findAllByRoleAndApprovalStatus(Role role, ApprovalStatus status);
